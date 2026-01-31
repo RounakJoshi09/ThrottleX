@@ -4,6 +4,27 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- NuGet Package Properties -->
+    <PackageId>ThrottleX</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Rounak Joshi</Authors>
+    <Description>Advanced rate limiting library for .NET with distributed support and dynamic configuration</Description>
+    <PackageTags>rate-limiting;throttling;api;aspnetcore;redis;distributed</PackageTags>
+    <PackageProjectUrl>https://github.com/RounakJoshi09/ThrottleX.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RounakJoshi09/ThrottleX.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
