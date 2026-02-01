@@ -142,7 +142,7 @@ Contributions, suggestions, and feedback are welcome.
 ### Development Setup
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/ThrottleX.git
+git clone https://github.com/RounakJoshi09/ThrottleX.git
 
 # Restore dependencies
 dotnet restore
