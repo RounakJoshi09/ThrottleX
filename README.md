@@ -43,11 +43,85 @@ ThrottleX is a comprehensive, production-ready rate limiting library for .NET ap
 
 ## 🚀 Quick Start (Preview)
 
-> **Note**: These examples show the planned API. Implementation is in progress.
+> **Note**: Core abstractions, Fixed Window, and DI are implemented. ASP.NET Core middleware and additional algorithms are in progress.
 
 ### Installation
 ```bash
 dotnet add package ThrottleX
+# Or reference the project locally during development
+```
+
+### Register with dependency injection
+
+Works in any .NET 9 host (console, worker, ASP.NET Core) — no ASP.NET dependency in the core package.
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using ThrottleX.DependencyInjection;
+using ThrottleX.Options;
+
+var services = new ServiceCollection();
+
+// Defaults: 100 requests / minute, fixed window
+services.AddThrottleX();
+
+// Or configure in code
+services.AddThrottleX(options =>
+{
+    options.DefaultPolicy = new RateLimitPolicy
+    {
+        Algorithm = RateLimitAlgorithm.FixedWindow,
+        PermitLimit = 100,
+        Window = TimeSpan.FromMinutes(1)
+    };
+});
+
+// Named policies
+services.AddThrottleX()
+    .AddPolicy("api", policy =>
+    {
+        policy.Algorithm = RateLimitAlgorithm.FixedWindow;
+        policy.PermitLimit = 60;
+        policy.Window = TimeSpan.FromMinutes(1);
+    })
+    .AddPolicy("auth", policy =>
+    {
+        policy.PermitLimit = 10;
+        policy.Window = TimeSpan.FromMinutes(1);
+    });
+
+// Or bind from configuration section "ThrottleX"
+// services.AddThrottleX(configuration);
+
+var sp = services.BuildServiceProvider();
+var limiter = sp.GetRequiredService<ThrottleX.Abstractions.IRateLimiter>();
+
+var lease = await limiter.AcquireAsync("user:42");
+if (!lease.IsAcquired)
+{
+    // Reject — lease.RetryAfter suggests when to try again
+}
+```
+
+#### `appsettings.json` example
+
+```json
+{
+  "ThrottleX": {
+    "DefaultPolicy": {
+      "Algorithm": "FixedWindow",
+      "PermitLimit": 100,
+      "Window": "00:01:00"
+    },
+    "Policies": {
+      "api": {
+        "Algorithm": "FixedWindow",
+        "PermitLimit": 60,
+        "Window": "00:01:00"
+      }
+    }
+  }
+}
 ```
 
 ## 📅 Development Roadmap
