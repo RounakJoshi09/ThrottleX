@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          # Install both so net9.0 TFM restores/builds even if runner ships newer SDKs
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore ThrottleX.sln
+
+      - name: Build
+        run: dotnet build ThrottleX.sln --configuration Release --no-restore
+
+      - name: Test (if present)
+        run: |
+          if [ -d "ThrottleX.Tests" ] || compgen -G "tests/**/*.csproj" > /dev/null 2>&1; then
+            dotnet test ThrottleX.sln --configuration Release --no-build --verbosity normal
+          else
+            echo "No test projects yet — skipping tests."
+          fi
+        shell: bash
